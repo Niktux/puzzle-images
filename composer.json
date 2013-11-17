@@ -1,0 +1,23 @@
+{
+	"name" : "puzzle/images",
+	"description" : "Images handler component",
+	"type" : "library",
+	"authors" : [{
+			"name" : "Nicolas Le Nardou",
+			"email" : "nico.ln@gmail.com"
+		}
+	],
+	"keywords" : [
+		"images"
+	],
+	"require" : {
+		"imagine/imagine" : "~0.5",
+		"php" : ">=5.3.3",
+		"puzzle/configuration" : "dev-master"
+	},
+	"autoload" : {
+		"psr-0" : {
+			"Puzzle\\" : "lib"
+		}
+	}
+}

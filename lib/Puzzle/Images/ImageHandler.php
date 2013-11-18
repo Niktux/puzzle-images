@@ -4,6 +4,7 @@ namespace Puzzle\Images;
 
 use Puzzle\Configuration;
 use Imagine\Image\ImagineInterface;
+use Imagine\Image\ImageInterface;
 
 class ImageHandler
 {
@@ -62,16 +63,17 @@ class ImageHandler
     
     private function computePath($imagePath, $format)
     {
-        $targetDirectory = $this->storageDir . $this->sanitize($format) . $this->getDirectorySeparator() . $this->hash(md5($imagePath));
-        $this->ensureDirectoryExists(dirname($targetDirectory));
+        $targetPath = $this->storageDir . $this->sanitize($format) . $this->getDirectorySeparator() . $this->hash(md5($imagePath));
+        $this->ensureDirectoryExists(dirname($targetPath));
         
         $fileInfo = pathinfo($imagePath);
         
-        return sprintf(
-            '%s.%s',
-            $targetDirectory,
-            $fileInfo['extension']
-        );
+        if(isset($fileInfo['extension']))
+        {
+            $targetPath .= '.' . $fileInfo['extension'];
+        }
+
+        return $targetPath;
     }
     
     private function hash($path)
@@ -94,8 +96,15 @@ class ImageHandler
     
     private function applyTransformation($imageSourcePath, $imageTargetPath, $format)
     {
+        $quality = 100;
+        $formatDescription = $this->formats[$format];
+        if(isset($formatDescription['quality']))
+        {
+            $quality = intval(trim($formatDescription['quality']));
+        }
+        
         $transformation = $this->getTransformation($format);
-        $transformation->save($imageTargetPath);
+        $transformation->save($imageTargetPath, array('quality' => $quality));
         
         $transformation->apply($this->imagine->open($imageSourcePath));
     }
@@ -113,6 +122,16 @@ class ImageHandler
             {
                 $dimensions = explode(self::SIZE_DELIMITER, $sizeStr);
                 $transformation->resize(new \Imagine\Image\Box($dimensions[0], $dimensions[1]));
+            }
+        }
+        elseif(isset($formatDescription['thumbnail']))
+        {
+            $sizeStr = $formatDescription['thumbnail'];
+            if(strpos($sizeStr, self::SIZE_DELIMITER) !== false)
+            {
+                $dimensions = explode(self::SIZE_DELIMITER, $sizeStr);
+                $mode = ImageInterface::THUMBNAIL_INSET;
+                $transformation->thumbnail(new \Imagine\Image\Box($dimensions[0], $dimensions[1]), $mode);
             }
         }
         

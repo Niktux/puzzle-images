@@ -7,7 +7,7 @@ use Imagine\Image\ImagineInterface;
 
 class ImageHandler
 {
-    use Puzzle\Images\FileHandling;
+    use FileHandling;
     
     const
         SIZE_DELIMITER = 'x';

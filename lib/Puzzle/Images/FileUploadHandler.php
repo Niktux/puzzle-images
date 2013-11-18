@@ -8,7 +8,7 @@ use Puzzle\Images\Exceptions\NotFound;
 
 class FileUploadHandler
 {
-    use Puzzle\Images\FileHandling;
+    use FileHandling;
     
     private
         $defaultTargetDirectory,

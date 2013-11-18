@@ -68,16 +68,10 @@ class ImageHandler
         $fileInfo = pathinfo($imagePath);
         
         return sprintf(
-            '%s/%s.%s',
+            '%s.%s',
             $targetDirectory,
-            $format,
             $fileInfo['extension']
         );
-    }
-    
-    private function sanitize($filename)
-    {
-        return preg_replace('~[\w]~', '', $filename);    
     }
     
     private function hash($path)

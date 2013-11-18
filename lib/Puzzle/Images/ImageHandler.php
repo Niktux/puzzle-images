@@ -63,7 +63,7 @@ class ImageHandler
     private function computePath($imagePath, $format)
     {
         $targetDirectory = $this->storageDir . $this->sanitize($format) . $this->getDirectorySeparator() . $this->hash(md5($imagePath));
-        $this->ensureDirectoryExists($targetDirectory);
+        $this->ensureDirectoryExists(dirname($targetDirectory));
         
         $fileInfo = pathinfo($imagePath);
         

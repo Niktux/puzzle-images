@@ -8,12 +8,13 @@ use Puzzle\Images\Exceptions\NotFound;
 
 class FileUploadHandler
 {
+    use Puzzle\Images\FileHandling;
+    
     private
         $defaultTargetDirectory,
         $maxSize,
         $randomMode,
-        $hashDepth,
-        $posixMode;
+        $hashDepth;
     
     public function __construct($defaultTargetDirectory, $maxSize)
     {
@@ -60,16 +61,6 @@ class FileUploadHandler
         if(is_int($depth) && $depth > 0)
         {
             $this->hashDepth = $depth;
-        }
-    
-        return $this;
-    }
-    
-    public function setPosixMode($enabled)
-    {
-        if(is_bool($enabled))
-        {
-            $this->posixMode = $enabled;
         }
     
         return $this;
@@ -201,17 +192,6 @@ class FileUploadHandler
     
     private function computeRealFileName($pathInfo)
     {
-        return $this->filterFileName($pathInfo['basename']);
-    }
-    
-    
-    private function filterFileName($filename)
-    {
-        $filename = strtr($filename,
-            'ÀÁÂÃÄÅÇÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÝàáâãäåçèéêëìíîïðòóôõöùúûüýÿ',
-            'AAAAAACEEEEIIIIOOOOOUUUUYaaaaaaceeeeiiiioooooouuuuyy'
-        );
-        
-        return preg_replace('/([^a-z0-9\.-_]+)/i', '-', $filename);
+        return $this->sanitize($pathInfo['basename']);
     }
 }

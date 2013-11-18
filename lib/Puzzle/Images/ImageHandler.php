@@ -7,10 +7,13 @@ use Imagine\Image\ImagineInterface;
 
 class ImageHandler
 {
+    use Puzzle\Images\FileHandling;
+    
     const
         SIZE_DELIMITER = 'x';
     
     private
+        $hashDepth,
         $configuration,
         $formats,
         $imagine,
@@ -18,16 +21,17 @@ class ImageHandler
     
     public function __construct(Configuration $configuration, ImagineInterface $imagine, $storageDir)
     {
+        $this->hashDepth = $configuration->read('images/hashDepth', 3);
         $this->configuration = $configuration;
         $this->formats = $configuration->read('images/formats', array());
         $this->imagine = $imagine;
-        $this->storageDir = rtrim($storageDir, '/') . '/';
+        $this->storageDir = rtrim($storageDir, $this->getDirectorySeparator()) . $this->getDirectorySeparator();
     }
     
     public function applyFormat($imagePath, $format)
     {
         // FIXME
-        $relativeImagePath = ltrim($imagePath, '/');
+        $relativeImagePath = ltrim($imagePath, $this->getDirectorySeparator());
         
         if(isset($this->formats[$format]) && is_file($relativeImagePath))
         {
@@ -58,7 +62,7 @@ class ImageHandler
     
     private function computePath($imagePath, $format)
     {
-        $targetDirectory = $this->storageDir . md5($imagePath);
+        $targetDirectory = $this->storageDir . $this->sanitize($format) . $this->getDirectorySeparator() . $this->hash(md5($imagePath));
         $this->ensureDirectoryExists($targetDirectory);
         
         $fileInfo = pathinfo($imagePath);
@@ -69,6 +73,18 @@ class ImageHandler
             $format,
             $fileInfo['extension']
         );
+    }
+    
+    private function sanitize($filename)
+    {
+        return preg_replace('~[\w]~', '', $filename);    
+    }
+    
+    private function hash($path)
+    {
+        $parts = preg_split('~~', $path, $this->hashDepth + 1);
+        
+        return implode($this->getDirectorySeparator(), $parts);    
     }
     
     private function ensureDirectoryExists($directory)

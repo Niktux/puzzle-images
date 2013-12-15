@@ -5,6 +5,9 @@ namespace Puzzle\Images;
 use Puzzle\Configuration;
 use Imagine\Image\ImagineInterface;
 use Imagine\Image\ImageInterface;
+use Gaufrette\Filesystem;
+use Puzzle\Images\Imagine\Filter\Get;
+use Gaufrette\File;
 
 class ImageHandler
 {
@@ -18,56 +21,45 @@ class ImageHandler
         $configuration,
         $formats,
         $imagine,
-        $storageDir;
+        $storage;
     
-    public function __construct(Configuration $configuration, ImagineInterface $imagine, $storageDir)
+    public function __construct(Configuration $configuration, ImagineInterface $imagine, Filesystem $storage)
     {
         $this->hashDepth = $configuration->read('images/hashDepth', 3);
         $this->configuration = $configuration;
         $this->formats = $configuration->read('images/formats', array());
         $this->imagine = $imagine;
-        $this->storageDir = rtrim($storageDir, $this->getDirectorySeparator()) . $this->getDirectorySeparator();
+        $this->storage = $storage;
     }
     
-    public function applyFormat($imagePath, $format)
+    public function applyFormat(File $sourceImage, $format)
     {
-        // FIXME
-        $relativeImagePath = ltrim($imagePath, $this->getDirectorySeparator());
-        
-        if(isset($this->formats[$format]) && is_file($relativeImagePath))
+        if(isset($this->formats[$format]) && $sourceImage->exists())
         {
-            try
-            {
-                return $this->getFormat($relativeImagePath, $format);
-            }
-            catch(\Exception $e)
-            {
-                // no transformation
-            }
+            return $this->getFormat($sourceImage, $format);
         }
         
-        return $imagePath;
+        return $sourceImage;
     }
     
-    private function getFormat($imagePath, $format)
+    private function getFormat(File $sourceImage, $format)
     {
-        $targetPath = $this->computePath($imagePath, $format);
+        $targetPath = $this->computePath($sourceImage, $format);
         
-        if(! is_file($targetPath))
+        if(! $this->storage->has($targetPath))
         {
-            $this->applyTransformation($imagePath, $targetPath, $format);
+            $this->applyTransformation($sourceImage, $targetPath, $format);
         }
         
-        return $targetPath;
+        return $this->storage->get($targetPath);
     }
     
-    private function computePath($imagePath, $format)
+    private function computePath(File $sourceImage, $format)
     {
-        $targetPath = $this->storageDir . $this->sanitize($format) . $this->getDirectorySeparator() . $this->hash(md5($imagePath));
-        $this->ensureDirectoryExists(dirname($targetPath));
+        $relativeImagePath = $sourceImage->getKey();
+        $targetPath = $this->sanitize($format) . $this->getDirectorySeparator() . $this->hash(md5($relativeImagePath));
         
-        $fileInfo = pathinfo($imagePath);
-        
+        $fileInfo = pathinfo($relativeImagePath);
         if(isset($fileInfo['extension']))
         {
             $targetPath .= '.' . $fileInfo['extension'];
@@ -78,23 +70,12 @@ class ImageHandler
     
     private function hash($path)
     {
-        $parts = preg_split('~~', $path, $this->hashDepth + 1);
+        $parts = preg_split('~~', $path, $this->hashDepth + 1, PREG_SPLIT_NO_EMPTY);
         
         return implode($this->getDirectorySeparator(), $parts);    
     }
     
-    private function ensureDirectoryExists($directory)
-    {
-        if(!is_dir($directory))
-        {
-            if(!mkdir($directory, 0755, true))
-            {
-                throw new \Firenote\Exceptions\Filesystem("Cannot create directory $directory");
-            }
-        }
-    }
-    
-    private function applyTransformation($imageSourcePath, $imageTargetPath, $format)
+    private function applyTransformation(File $sourceImage, $imageTargetPath, $format)
     {
         $quality = 100;
         $formatDescription = $this->formats[$format];
@@ -104,9 +85,14 @@ class ImageHandler
         }
         
         $transformation = $this->getTransformation($format);
-        $transformation->save($imageTargetPath, array('quality' => $quality));
+        $transformation->add(
+            new Get($imageTargetPath, array('quality' => $quality))
+        );
         
-        $transformation->apply($this->imagine->open($imageSourcePath));
+        $imageContent = $transformation->apply(
+            $this->imagine->load($sourceImage->getContent())
+        );
+        $this->storage->write($imageTargetPath, $imageContent);
     }
     
     private function getTransformation($format)

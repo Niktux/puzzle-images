@@ -8,3 +8,8 @@ vendor/
 composer.phar
 composer.lock
 
+# PHPUnit coverage report
+report/
+
+# Logs files
+php_errors.log

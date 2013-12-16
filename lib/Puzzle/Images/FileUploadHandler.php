@@ -130,11 +130,6 @@ class FileUploadHandler
         return rtrim($targetDirectory, $this->getDirectorySeparator()) . $this->getDirectorySeparator();
     }
     
-    private function getDirectorySeparator()
-    {
-        return $this->posixMode ? '/' : DIRECTORY_SEPARATOR;
-    }
-    
     private function ensureDirectoryExists($directory)
     {
         if(!is_dir($directory))

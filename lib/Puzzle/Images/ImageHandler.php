@@ -79,22 +79,28 @@ class ImageHandler
     
     private function applyTransformation(File $sourceImage, $imageTargetPath, $format)
     {
-        $quality = 100;
-        $formatDescription = $this->formats[$format];
-        if(isset($formatDescription['quality']))
-        {
-            $quality = intval(trim($formatDescription['quality']));
-        }
-        
         $transformation = $this->getTransformation($format);
         $transformation->add(
-            new Get($imageTargetPath, array('quality' => $quality))
+            new Get($imageTargetPath, array('quality' => $this->getQuality($format)))
         );
         
         $imageContent = $transformation->apply(
             $this->imagine->load($sourceImage->getContent())
         );
         $this->storage->write($imageTargetPath, $imageContent);
+    }
+    
+    private function getQuality($format)
+    {
+        $quality = 100;
+        
+        $formatDescription = $this->formats[$format];
+        if(isset($formatDescription['quality']))
+        {
+            $quality = intval(trim($formatDescription['quality']));
+        }
+        
+        return $quality;
     }
     
     private function getTransformation($format)

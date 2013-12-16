@@ -32,13 +32,12 @@ class ImageHandler
         $this->imagine = $imagine;
         $this->storage = $storage;
         
+        $this->formatTransformations = array();
         $this->registerFormatTransformations();
     }
     
     private function registerFormatTransformations()
     {
-        $this->formatTransformations = array();
-        
         $transformations = array(
             new Resize(),
             new Thumbnail(),
@@ -46,8 +45,15 @@ class ImageHandler
         
         foreach($transformations as $t)
         {
-            $this->formatTransformations[$t->getName()] = $t;
+            $this->addFormatTransformation($t);
         }
+    }
+    
+    public function addFormatTransformation(FormatTransformation $formatTransformation)
+    {
+        $this->formatTransformations[$formatTransformation->getName()] = $formatTransformation;
+        
+        return $this;
     }
     
     public function applyFormat(File $sourceImage, $format)

@@ -74,7 +74,6 @@ class FileUploadHandler
      *
      * @return uploaded file path
      */
-    
     public function retrieve($fieldName, array $allowedExtensions, $targetDirectory = null)
     {
         $pathInfo = $this->retrieveFileInformation($fieldName);

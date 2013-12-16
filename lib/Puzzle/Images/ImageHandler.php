@@ -80,6 +80,7 @@ class ImageHandler
     private function applyTransformation(File $sourceImage, $imageTargetPath, $format)
     {
         $transformation = $this->getTransformation($format);
+        
         $transformation->add(
             new Get($imageTargetPath, array('quality' => $this->getQuality($format)))
         );
@@ -87,6 +88,7 @@ class ImageHandler
         $imageContent = $transformation->apply(
             $this->imagine->load($sourceImage->getContent())
         );
+        
         $this->storage->write($imageTargetPath, $imageContent);
     }
     

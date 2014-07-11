@@ -23,5 +23,7 @@
 		"psr-0" : {
 			"Puzzle\\" : "lib"
 		}
-	}
+	},
+	"homepage" : "https://github.com/Niktux/puzzle-images",
+	"license" : "MIT"
 }

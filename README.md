@@ -11,4 +11,4 @@ Service | Result
 **Jenkins** | [![Build Status](http://jenkins.deboo.fr/job/Puzzle-images/badge/icon)](http://jenkins.deboo.fr/job/Puzzle-images/)
 **Travis CI** (PHP 5.4 + 5.5) | [![Build Status](https://travis-ci.org/Niktux/puzzle-images.png?branch=master)](https://travis-ci.org/Niktux/puzzle-images)
 **Scrutinizer** | [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Niktux/puzzle-images/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Niktux/puzzle-images/?branch=master)
-**Packagist** | [![Latest Stable Version](https://poser.pugx.org/niktux/puzzle-images/v/stable.png)](https://packagist.org/packages/niktux/puzzle-images)
+**Packagist** | [![Latest Stable Version](https://poser.pugx.org/niktux/puzzle-images/v/stable.png)](https://packagist.org/packages/puzzle/images)

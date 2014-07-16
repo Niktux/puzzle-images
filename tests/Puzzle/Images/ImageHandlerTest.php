@@ -1,6 +1,7 @@
 <?php
 
-use Puzzle\Images\ImageHandler;
+namespace Puzzle\Images;
+
 use Puzzle\Configuration\Memory;
 use Imagine\Gd\Imagine;
 use Gaufrette\Filesystem;
@@ -8,7 +9,7 @@ use Gaufrette\Adapter\InMemory;
 use Gaufrette\File;
 use Gaufrette\Adapter\Local;
 
-class ImageHandlerTest extends PHPUnit_Framework_TestCase
+class ImageHandlerTest extends \PHPUnit_Framework_TestCase
 {
     private
         $hashDepth,

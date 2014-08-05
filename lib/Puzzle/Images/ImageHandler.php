@@ -16,7 +16,6 @@ class ImageHandler
     
     private
         $hashDepth,
-        $configuration,
         $formats,
         $imagine,
         $storage,
@@ -24,8 +23,6 @@ class ImageHandler
     
     public function __construct(Configuration $configuration, ImagineInterface $imagine, Filesystem $storage)
     {
-        $this->configuration = $configuration;
-        
         $this->hashDepth = $configuration->read('images/hashDepth', 3);
         $this->formats = $configuration->read('images/formats', array());
         
